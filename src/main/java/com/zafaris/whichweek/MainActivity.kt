@@ -27,6 +27,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.android.gms.ads.*
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.muddzdev.styleabletoast.StyleableToast
+import kotlinx.android.synthetic.main.activity_main.*
 import org.threeten.extra.YearWeek
 import java.io.IOException
 import java.text.DateFormat
@@ -38,10 +39,6 @@ import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity() {
     private lateinit var prefs: SharedPreferences
-    private lateinit var fullDateTv: TextView
-    private lateinit var currentWeekTv: TextView
-    private lateinit var nextWeekTv: TextView
-    private lateinit var changeFormatSwitch: Switch
 
     private lateinit var adContainerView: FrameLayout
     private lateinit var adView: AdView
@@ -80,10 +77,6 @@ class MainActivity : AppCompatActivity() {
         hideStatusBar()
         animateBackground()
 
-        fullDateTv = findViewById(R.id.fullDateTv)
-        currentWeekTv = findViewById(R.id.currentWeekTv)
-        nextWeekTv = findViewById(R.id.nextWeekTv)
-        changeFormatSwitch = findViewById(R.id.changeFormatSwitch)
         changeFormatSwitch.setOnCheckedChangeListener { _, isChecked ->
             when (isChecked) {
                 false -> changeWeekFormat(1)
