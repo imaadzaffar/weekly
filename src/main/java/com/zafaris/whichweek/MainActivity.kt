@@ -310,14 +310,6 @@ class MainActivity : AppCompatActivity() {
         startActivity(Intent.createChooser(shareIntent, "Share with: "))
     }
 
-    fun tapSendEmail(view: View?) {
-        val email = "iszaffar.apps@gmail.com"
-        val subject = "Week.ly App Feedback"
-        val chooserTitle = "Email with: "
-        val emailIntent = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:$email?subject=$subject"))
-        startActivity(Intent.createChooser(emailIntent, chooserTitle))
-    }
-
     private fun hideStatusBar() {
         setWindowFlag(this, WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, true)
         window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
