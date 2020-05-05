@@ -1,0 +1,32 @@
+<resources>
+
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+    </style>
+    
+    <style name="CustomToast">
+        <item name="stTextColor">#fff</item>
+        <item name="stFont">@font/product_sans_bold</item>
+        <item name="stTextSize">20sp</item>
+        <item name="stColorBackground">@color/colorPrimary</item>
+        <item name="stSolidBackground">true</item>
+        <item name="stStrokeWidth">3dp</item>
+        <item name="stStrokeColor">@color/colorPrimaryDark</item>
+        <item name="stGravity">center</item> top or center
+        <item name="stRadius">30dp</item>
+    </style>
+
+    <style name="ErrorToast">
+        <item name="stTextColor">#fff</item>
+        <item name="stFont">@font/product_sans_bold</item>
+        <item name="stTextSize">20sp</item>
+        <item name="stColorBackground">@color/colorError</item>
+        <item name="stSolidBackground">true</item>
+        <item name="stStrokeWidth">3dp</item>
+        <item name="stStrokeColor">@color/colorErrorDark</item>
+        <item name="stGravity">center</item> top or center
+        <item name="stRadius">30dp</item>
+    </style>
+
+</resources>
