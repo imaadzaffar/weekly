@@ -4,30 +4,27 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.content.pm.PackageInfo
-import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.AnimationDrawable
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
 import android.view.WindowManager
-import android.view.animation.AnimationUtils
 import android.widget.FrameLayout
-import android.widget.Switch
-import android.widget.TextView
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
-import com.google.android.gms.ads.*
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.MobileAds
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.muddzdev.styleabletoast.StyleableToast
 import kotlinx.android.synthetic.main.activity_main.*
+import nl.dionsegijn.konfetti.models.Shape
+import nl.dionsegijn.konfetti.models.Size
 import org.threeten.extra.YearWeek
 import java.io.IOException
 import java.text.DateFormat
@@ -77,6 +74,15 @@ class MainActivity : AppCompatActivity() {
         hideStatusBar()
         animateBackground()
 
+        prefs = getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE)
+        if (prefs.getBoolean("firstTime", true)) {
+            prefs.edit().putBoolean("firstTime", false).apply()
+            showStartDialog()
+            generateWeeksList()
+        } else {
+            loadWeeksList()
+        }
+
         changeFormatSwitch.setOnCheckedChangeListener { _, isChecked ->
             when (isChecked) {
                 false -> changeWeekFormat(1)
@@ -84,30 +90,19 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        prefs = getSharedPreferences("com.zafaris.whichweek", Context.MODE_PRIVATE)
-
-        if (prefs.getBoolean("firstTime", true)) {
-            prefs.edit().putBoolean("firstTime", false).apply()
-            showStartDialog()
-            generateWeeksList()
-        } else {
-            getWeeksList()
-        }
-
-        // Week A/B or 1/2
+        // Retrieves week format from device (A/B or 1/2)
         weekFormat = prefs.getInt("weekFormat", 1)
         // Toggle switch if week format is 1/2
         if (weekFormat == 2) {
             changeFormatSwitch.isChecked = true
-            weekFormatList = arrayListOf("1", "2")
         }
 
         getDateInfo()
         val weeksText = generateWeeksText()
         currentWeekTv.text = weeksText[0]
         nextWeekTv.text = weeksText[1]
-        
-        setupBannerAd()
+
+        //setupBannerAd()
     }
 
     private fun showStartDialog() {
@@ -122,7 +117,7 @@ class MainActivity : AppCompatActivity() {
                 .show()
     }
 
-    private fun getWeeksList() {
+    private fun loadWeeksList() {
         try {
             weekList = ObjectSerializer.deserialize(prefs.getString("weekList", "")) as ArrayList<Int>
         } catch (e: IOException) {
@@ -255,9 +250,25 @@ class MainActivity : AppCompatActivity() {
     }
     
     fun tapScreenAnimation(view: View?) {
-        val centreLayout = findViewById<ConstraintLayout>(R.id.centreLayout)
-        val bounce = AnimationUtils.loadAnimation(this, R.anim.bounce_animation)
-        centreLayout.startAnimation(bounce)
+        //val centreLayout = findViewById<ConstraintLayout>(R.id.centreLayout)
+        //val bounce = AnimationUtils.loadAnimation(this, R.anim.bounce_animation)
+        //centreLayout.startAnimation(bounce)
+
+        Log.i("konfetti", viewKonfetti.getActiveSystems().size.toString())
+        // Checks if there aren't already any konfetti animations going on
+        if (viewKonfetti.getActiveSystems().size == 0) {
+            Log.i("konfetti", "showing konfetti")
+            viewKonfetti.build()
+                    .addColors(Color.WHITE)
+                    .setDirection(0.0, 359.0)
+                    .setSpeed(1f, 5f)
+                    .setFadeOutEnabled(true)
+                    .setTimeToLive(2000L)
+                    .addShapes(Shape.Square, Shape.Circle)
+                    .addSizes(Size(12))
+                    .setPosition(-50f, viewKonfetti.width + 50f, -50f, -50f)
+                    .streamFor(300, 2000L)
+        }
     }
 
     fun tapDateBtn(view: View?) {
@@ -296,9 +307,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun tapShareBtn(view: View?) {
-        var message = "It is Week $currentWeekType :)"
-        if (currentWeekType == 0) {
-            message = "Enjoy the holidays :)"
+        var message = "Enjoy the holidays :)"
+        if (currentWeekType > 0) {
+            message = "It is Week ${weekFormatList!![currentWeekType - 1]} :)"
         }
         message +=  "\n\nNever forget which week it is again with the Week.ly app! " +
                 "Download now: https://play.google.com/store/apps/details?id=" + BuildConfig.APPLICATION_ID
@@ -327,11 +338,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupBannerAd() {
         adContainerView = findViewById(R.id.ad_view_container)
-        MobileAds.initialize(this) {}
-        val testDeviceIds = listOf("6D2382FDF2727AA22ECCD727F5429CD7")
-        val configuration = RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build()
-        MobileAds.setRequestConfiguration(configuration)
-
+        MobileAds.initialize(this)
         adView = AdView(this)
         adContainerView.addView(adView)
         adContainerView.viewTreeObserver.addOnGlobalLayoutListener {
@@ -361,6 +368,11 @@ class MainActivity : AppCompatActivity() {
             win.attributes = winParams
         }
 
+        const val SHARED_PREFS = "com.zafaris.whichweek"
+
+        //const val TEST_AD_UNIT_ID = "ca-app-pub-3940256099942544/6300978111"
+        const val AD_UNIT_ID = "ca-app-pub-4222736956813262/3450822903"
+
         //TODO: Update these values every year
         const val FIRST_YEAR = 2019
         const val FIRST_WEEK_ISO = 36
@@ -375,7 +387,5 @@ class MainActivity : AppCompatActivity() {
         const val WEEKS_IN_SECOND_YEAR = 52 - WEEKS_IN_FIRST_YEAR //35
         private val HOLIDAYS_LIST = HOLIDAYS_FIRST_YEAR + HOLIDAYS_SECOND_YEAR
 
-        const val TEST_AD_UNIT_ID = "ca-app-pub-3940256099942544/6300978111"
-        const val AD_UNIT_ID = "ca-app-pub-4222736956813262/3450822903"
     }
 }
