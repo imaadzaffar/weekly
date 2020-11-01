@@ -10,6 +10,55 @@
     android:onClick="tapScreenAnimation"
     tools:context=".MainActivity">
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/centreLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:layout_marginEnd="50dp"
+        app:layout_constraintBottom_toTopOf="@id/ad_view_container"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/nextWeekTv"
+            android:layout_width="0dp"
+            android:layout_height="35dp"
+            android:layout_marginTop="8dp"
+            android:autoSizeMaxTextSize="20sp"
+            android:autoSizeStepGranularity="4sp"
+            android:autoSizeTextType="uniform"
+            android:fontFamily="@font/product_sans"
+            android:gravity="center_horizontal"
+            android:text="Next week will be Week B"
+            android:textColor="@color/colorTextLight"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/currentWeekTv" />
+
+        <TextView
+            android:id="@+id/currentWeekTv"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:autoSizeMaxTextSize="40sp"
+            android:autoSizeStepGranularity="4sp"
+            android:autoSizeTextType="uniform"
+            android:clickable="true"
+            android:fontFamily="@font/product_sans_bold"
+            android:gravity="center_horizontal"
+            android:onClick="tapScreenAnimation"
+            android:text="It is Week A"
+            android:textColor="@color/colorTextLight"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <TextView
         android:id="@+id/fullDateTv"
         android:layout_width="wrap_content"
@@ -61,44 +110,13 @@
         app:layout_constraintStart_toEndOf="@id/changeFormatSwitch"
         app:layout_constraintTop_toTopOf="@id/changeFormatSwitch" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/centreLayout"
+    <nl.dionsegijn.konfetti.KonfettiView
+        android:id="@+id/viewKonfetti"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         app:layout_constraintBottom_toTopOf="@id/ad_view_container"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <TextView
-            android:id="@+id/nextWeekTv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:fontFamily="@font/product_sans"
-            android:text="Next week will be Week B"
-            android:textColor="@color/colorTextLight"
-            android:textSize="24sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/currentWeekTv" />
-
-        <TextView
-            android:id="@+id/currentWeekTv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:fontFamily="@font/product_sans_bold"
-            android:onClick="tapScreenAnimation"
-            android:text="It is Week A"
-            android:textColor="@color/colorTextLight"
-            android:textSize="30sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/buttonsLayout"

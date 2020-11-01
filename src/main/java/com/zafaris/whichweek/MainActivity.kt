@@ -61,6 +61,7 @@ class MainActivity : AppCompatActivity() {
     private var dayOfWeek = 0
     private var currentYear = 0
     private var currentWeekISO = 0
+    private var weeksInFirstYear: Int = 0
 
     private var weekList: ArrayList<Int>? = null
     private var weekFormat = 0
@@ -74,13 +75,21 @@ class MainActivity : AppCompatActivity() {
         hideStatusBar()
         animateBackground()
 
+        getDateInfo()
         prefs = getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE)
-        if (prefs.getBoolean("firstTime", true)) {
-            prefs.edit().putBoolean("firstTime", false).apply()
-            showStartDialog()
-            generateWeeksList()
-        } else {
-            loadWeeksList()
+        when {
+            prefs.getBoolean("firstTime", true) -> {
+                prefs.edit().putBoolean("firstTime", false).apply()
+                showStartDialog()
+                generateWeeksList()
+            }
+            prefs.getInt("firstYear", 0) == FIRST_YEAR -> {
+                prefs.edit().putInt("firstYear", FIRST_YEAR).apply()
+                generateWeeksList()
+            }
+            else -> {
+                loadWeeksList()
+            }
         }
 
         changeFormatSwitch.setOnCheckedChangeListener { _, isChecked ->
@@ -97,12 +106,12 @@ class MainActivity : AppCompatActivity() {
             changeFormatSwitch.isChecked = true
         }
 
-        getDateInfo()
         val weeksText = generateWeeksText()
         currentWeekTv.text = weeksText[0]
         nextWeekTv.text = weeksText[1]
 
-        //setupBannerAd()
+        //TODO: Uncomment this
+        setupBannerAd()
     }
 
     private fun showStartDialog() {
@@ -136,13 +145,13 @@ class MainActivity : AppCompatActivity() {
         Log.i("HOLIDAYS_LIST", HOLIDAYS_LIST.toString())
 
         // Assigning values to each week of the year
-        for (i in 0..52) {
+        for (i in 0..weeksInFirstYear) {
             var tmpWeekISO: Int
-            if (i < WEEKS_IN_FIRST_YEAR) {
+            if (i < SCHOOL_WEEKS_IN_FIRST_YEAR) {
                 tmpWeekISO = FIRST_WEEK_ISO + i
                 tmpYear = FIRST_YEAR
             } else {
-                tmpWeekISO = (i - WEEKS_IN_FIRST_YEAR) + 1
+                tmpWeekISO = (i - SCHOOL_WEEKS_IN_FIRST_YEAR) + 1
                 tmpYear = SECOND_YEAR
             }
 
@@ -174,16 +183,16 @@ class MainActivity : AppCompatActivity() {
 
         if (currentYear == FIRST_YEAR) {
             // Checks if it is the last week of the year
-            if (currentWeekISO == WEEKS_IN_FIRST_YEAR) {
-                currentWeekType = weekList!![WEEKS_IN_FIRST_YEAR - 1]
-                nextWeekType = weekList!![(WEEKS_IN_FIRST_YEAR - 1) + 1]
+            if (currentWeekISO == SCHOOL_WEEKS_IN_FIRST_YEAR) {
+                currentWeekType = weekList!![SCHOOL_WEEKS_IN_FIRST_YEAR - 1]
+                nextWeekType = weekList!![(SCHOOL_WEEKS_IN_FIRST_YEAR - 1) + 1]
             } else {
                 currentWeekType = weekList!![currentWeekISO - FIRST_WEEK_ISO]
                 nextWeekType = weekList!![(currentWeekISO - FIRST_WEEK_ISO) + 1]
             }
         } else {
-            currentWeekType = weekList!![currentWeekISO + WEEKS_IN_FIRST_YEAR - 1]
-            nextWeekType = weekList!![(currentWeekISO + WEEKS_IN_FIRST_YEAR - 1) + 1]
+            currentWeekType = weekList!![currentWeekISO + SCHOOL_WEEKS_IN_FIRST_YEAR - 1]
+            nextWeekType = weekList!![(currentWeekISO + SCHOOL_WEEKS_IN_FIRST_YEAR - 1) + 1]
         }
 
         // Generate current week text - 0 [Holiday], 1 [Week A/1] or 2 [Week B/2]
@@ -216,6 +225,7 @@ class MainActivity : AppCompatActivity() {
         val zoneId = ZoneId.of("Europe/London")
         today = LocalDate.now(zoneId)
         currentWeekISO = YearWeek.from(today).week
+        weeksInFirstYear = if (YearWeek.from(today).is53WeekYear) 53 else 52
     }
     
     private fun getWeekType(date: LocalDate): Int {
@@ -225,13 +235,13 @@ class MainActivity : AppCompatActivity() {
 
         weekType = if (year == FIRST_YEAR) {
             // If last week of the year
-            if (weekISO == WEEKS_IN_FIRST_YEAR) {
-                weekList!![WEEKS_IN_FIRST_YEAR - 1]
+            if (weekISO == SCHOOL_WEEKS_IN_FIRST_YEAR) {
+                weekList!![SCHOOL_WEEKS_IN_FIRST_YEAR - 1]
             } else {
                 weekList!![weekISO - FIRST_WEEK_ISO]
             }
         } else {
-            weekList!![weekISO + WEEKS_IN_FIRST_YEAR - 1]
+            weekList!![weekISO + SCHOOL_WEEKS_IN_FIRST_YEAR - 1]
         }
         return weekType
     }
@@ -374,18 +384,16 @@ class MainActivity : AppCompatActivity() {
         const val AD_UNIT_ID = "ca-app-pub-4222736956813262/3450822903"
 
         //TODO: Update these values every year
-        const val FIRST_YEAR = 2019
+        const val FIRST_YEAR = 2020
         const val FIRST_WEEK_ISO = 36
         const val LAST_WEEK_ISO = 29
-        const val WEEKS_IN_FIRST_YEAR = 17
-        private val HOLIDAYS_FIRST_YEAR = arrayListOf(44, 52)
-        private val HOLIDAYS_SECOND_YEAR = arrayListOf(1, 8, 15, 16, 22)
-        private val FIRST_SCHOOL_DAY: LocalDate? = LocalDate.of(2019, 9, 2)
-        private val LAST_SCHOOL_DAY: LocalDate? = LocalDate.of(2020, 7, 17)
+        const val SCHOOL_WEEKS_IN_FIRST_YEAR = 18
+        private val HOLIDAYS_FIRST_YEAR = arrayListOf(44, 52, 53)
+        private val HOLIDAYS_SECOND_YEAR = arrayListOf(7, 14, 15, 22)
+        private val FIRST_SCHOOL_DAY: LocalDate? = LocalDate.of(2020, 9, 1)
+        private val LAST_SCHOOL_DAY: LocalDate? = LocalDate.of(2021, 7, 21)
 
         const val SECOND_YEAR = FIRST_YEAR + 1
-        const val WEEKS_IN_SECOND_YEAR = 52 - WEEKS_IN_FIRST_YEAR //35
         private val HOLIDAYS_LIST = HOLIDAYS_FIRST_YEAR + HOLIDAYS_SECOND_YEAR
-
     }
 }
