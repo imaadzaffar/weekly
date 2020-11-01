@@ -11,6 +11,7 @@ import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
 import android.view.WindowManager
+import android.view.animation.AnimationUtils
 import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -260,9 +261,9 @@ class MainActivity : AppCompatActivity() {
     }
     
     fun tapScreenAnimation(view: View?) {
-        //val centreLayout = findViewById<ConstraintLayout>(R.id.centreLayout)
-        //val bounce = AnimationUtils.loadAnimation(this, R.anim.bounce_animation)
-        //centreLayout.startAnimation(bounce)
+        val centreLayout = findViewById<ConstraintLayout>(R.id.centreLayout)
+        val bounce = AnimationUtils.loadAnimation(this, R.anim.bounce_animation)
+        centreLayout.startAnimation(bounce)
 
         Log.i("konfetti", viewKonfetti.getActiveSystems().size.toString())
         // Checks if there aren't already any konfetti animations going on
