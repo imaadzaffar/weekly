@@ -318,10 +318,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun tapShareBtn(view: View?) {
-        var message = "Enjoy the holidays :)"
-        if (currentWeekType > 0) {
-            message = "It is Week ${weekFormatList!![currentWeekType - 1]} :)"
-        }
+        val weeksText = generateWeeksText()
+        var message = weeksText[0] + "\n" + weeksText[1]
         message +=  "\n\nNever forget which week it is again with the Week.ly app! " +
                 "Download now: https://play.google.com/store/apps/details?id=" + BuildConfig.APPLICATION_ID
 
