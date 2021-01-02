@@ -61,6 +61,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var today: LocalDate
     private var dayOfWeek = 0
     private var currentYear = 0
+    private var currentYearISO = 0
     private var currentWeekISO = 0
     private var weeksInFirstYear: Int = 0
 
@@ -182,7 +183,7 @@ class MainActivity : AppCompatActivity() {
         val week1 = weekFormatList!![0]
         val week2 = weekFormatList!![1]
 
-        if (currentYear == FIRST_YEAR) {
+        if (currentYearISO == FIRST_YEAR) {
             // Checks if it is the last week of the year
             if (currentWeekISO == SCHOOL_WEEKS_IN_FIRST_YEAR) {
                 currentWeekType = weekList!![SCHOOL_WEEKS_IN_FIRST_YEAR - 1]
@@ -225,16 +226,15 @@ class MainActivity : AppCompatActivity() {
         // Week of year ISO
         val zoneId = ZoneId.of("Europe/London")
         today = LocalDate.now(zoneId)
+        currentYearISO = YearWeek.from(today).year
         currentWeekISO = YearWeek.from(today).week
         weeksInFirstYear = if (YearWeek.from(today).is53WeekYear) 53 else 52
     }
     
     private fun getWeekType(date: LocalDate): Int {
-        val year = date.year
+        val yearISO = YearWeek.from(date).year
         val weekISO = YearWeek.from(date).week
-        val weekType: Int
-
-        weekType = if (year == FIRST_YEAR) {
+        return if (yearISO == FIRST_YEAR) {
             // If last week of the year
             if (weekISO == SCHOOL_WEEKS_IN_FIRST_YEAR) {
                 weekList!![SCHOOL_WEEKS_IN_FIRST_YEAR - 1]
@@ -244,7 +244,6 @@ class MainActivity : AppCompatActivity() {
         } else {
             weekList!![weekISO + SCHOOL_WEEKS_IN_FIRST_YEAR - 1]
         }
-        return weekType
     }
 
     private fun changeWeekFormat(weekFormat: Int) {
