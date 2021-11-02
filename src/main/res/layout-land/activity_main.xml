@@ -149,19 +149,6 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <TextView
-        android:id="@+id/devText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:fontFamily="@font/product_sans_bold"
-        android:text="@string/dev_string"
-        android:textColor="@color/colorTextLight"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@id/ad_view_container"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
     <FrameLayout
         android:id="@+id/ad_view_container"
         android:layout_width="match_parent"

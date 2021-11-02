@@ -1,6 +1,7 @@
 package com.zafaris.whichweek
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -8,13 +9,11 @@ import android.graphics.Color
 import android.graphics.drawable.AnimationDrawable
 import android.os.Bundle
 import android.util.DisplayMetrics
-import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.view.animation.AnimationUtils
 import android.widget.FrameLayout
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.android.gms.ads.AdRequest
@@ -22,20 +21,20 @@ import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.MobileAds
 import com.google.android.material.datepicker.MaterialDatePicker
-import com.muddzdev.styleabletoast.StyleableToast
-import kotlinx.android.synthetic.main.activity_main.*
+import com.zafaris.whichweek.databinding.ActivityMainBinding
+import io.github.muddz.styleabletoast.StyleableToast
 import nl.dionsegijn.konfetti.models.Shape
 import nl.dionsegijn.konfetti.models.Size
 import org.threeten.extra.YearWeek
-import java.io.IOException
 import java.text.DateFormat
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.*
-import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityMainBinding
+
     private lateinit var prefs: SharedPreferences
 
     private lateinit var adContainerView: FrameLayout
@@ -73,28 +72,33 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
+
         hideStatusBar()
         animateBackground()
 
         getDateInfo()
+
         prefs = getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE)
+
+        // Remove old prefs
+        prefs.edit().remove("firstYear").apply()
+        prefs.edit().remove("weekList").apply()
+
         when {
             prefs.getBoolean("firstTime", true) -> {
                 prefs.edit().putBoolean("firstTime", false).apply()
                 showStartDialog()
-                generateWeeksList()
             }
             prefs.getInt("firstYear", 0) == FIRST_YEAR -> {
-                prefs.edit().putInt("firstYear", FIRST_YEAR).apply()
-                generateWeeksList()
-            }
-            else -> {
-                loadWeeksList()
+
             }
         }
+        generateWeeksList()
 
-        changeFormatSwitch.setOnCheckedChangeListener { _, isChecked ->
+        binding.changeFormatSwitch.setOnCheckedChangeListener { _, isChecked ->
             when (isChecked) {
                 false -> changeWeekFormat(1)
                 true -> changeWeekFormat(2)
@@ -105,12 +109,12 @@ class MainActivity : AppCompatActivity() {
         weekFormat = prefs.getInt("weekFormat", 1)
         // Toggle switch if week format is 1/2
         if (weekFormat == 2) {
-            changeFormatSwitch.isChecked = true
+            binding.changeFormatSwitch.isChecked = true
         }
 
         val weeksText = generateWeeksText()
-        currentWeekTv.text = weeksText[0]
-        nextWeekTv.text = weeksText[1]
+        binding.currentWeekTv.text = weeksText[0]
+        binding.nextWeekTv.text = weeksText[1]
 
         //TODO: Uncomment this
         setupBannerAd()
@@ -118,23 +122,16 @@ class MainActivity : AppCompatActivity() {
 
     private fun showStartDialog() {
         AlertDialog.Builder(this)
-                .setTitle("Info")
-                .setMessage("This app was made according to the King Edward VI Birmingham, UK school timetables. " +
-                        "\n\nIf you do not attend one of these schools, the week types and holidays shown might not be correct for you.")
-                .setPositiveButton("I understand") { dialog, _ ->
-                    dialog.dismiss()
-                }
-                .create()
-                .show()
-    }
-
-    private fun loadWeeksList() {
-        try {
-            weekList = ObjectSerializer.deserialize(prefs.getString("weekList", "")) as ArrayList<Int>
-        } catch (e: IOException) {
-            e.printStackTrace()
-            StyleableToast.makeText(this, "Error loading weeks...", Toast.LENGTH_SHORT, R.style.ErrorToast).show()
-        }
+            .setTitle("Info")
+            .setMessage(
+                "This app was made according to the King Edward VI Birmingham, UK school timetables. " +
+                        "\n\nIf you do not attend one of these schools, the week types and holidays shown might not be correct for you."
+            )
+            .setPositiveButton("I understand") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .create()
+            .show()
     }
 
     private fun generateWeeksList() {
@@ -144,7 +141,7 @@ class MainActivity : AppCompatActivity() {
         var tmpWeekType = 1
         var tmpYear: Int
 
-        Log.i("HOLIDAYS_LIST", HOLIDAYS_LIST.toString())
+        // Log.i("HOLIDAYS_LIST", HOLIDAYS_LIST.toString())
 
         // Assigning values to each week of the year
         for (i in 0..weeksInFirstYear) {
@@ -167,13 +164,7 @@ class MainActivity : AppCompatActivity() {
                     tmpWeekType = 1 }
             }
 
-            Log.i("Weeks List", "Year: $tmpYear, Week: $tmpWeekISO, Week Type: ${weekList!![i]}")
-        }
-        try {
-            prefs.edit().putString("weekList", ObjectSerializer.serialize(weekList)).apply()
-        } catch (e: IOException) {
-            e.printStackTrace()
-            StyleableToast.makeText(this, "Error saving weeks...", Toast.LENGTH_SHORT, R.style.ErrorToast).show()
+            // Log.i("Weeks List", "Year: $tmpYear, Week: $tmpWeekISO, Week Type: ${weekList!![i]}")
         }
     }
 
@@ -221,7 +212,7 @@ class MainActivity : AppCompatActivity() {
         // Full date text
         val date = calendar.time
         val fullDate = DateFormat.getDateInstance(DateFormat.FULL).format(date)
-        fullDateTv.text = fullDate
+        binding.fullDateTv.text = fullDate
 
         // Week of year ISO
         val zoneId = ZoneId.of("Europe/London")
@@ -255,8 +246,8 @@ class MainActivity : AppCompatActivity() {
 
         prefs.edit().putInt("weekFormat", weekFormat).apply()
         val weeksText = generateWeeksText()
-        currentWeekTv.text = weeksText[0]
-        nextWeekTv.text = weeksText[1]
+        binding.currentWeekTv.text = weeksText[0]
+        binding.nextWeekTv.text = weeksText[1]
     }
     
     fun tapScreenAnimation(view: View?) {
@@ -264,20 +255,18 @@ class MainActivity : AppCompatActivity() {
         val bounce = AnimationUtils.loadAnimation(this, R.anim.bounce_animation)
         centreLayout.startAnimation(bounce)
 
-        Log.i("konfetti", viewKonfetti.getActiveSystems().size.toString())
         // Checks if there aren't already any konfetti animations going on
-        if (viewKonfetti.getActiveSystems().size == 0) {
-            Log.i("konfetti", "showing konfetti")
-            viewKonfetti.build()
-                    .addColors(Color.WHITE)
-                    .setDirection(0.0, 359.0)
-                    .setSpeed(1f, 5f)
-                    .setFadeOutEnabled(true)
-                    .setTimeToLive(2000L)
-                    .addShapes(Shape.Square, Shape.Circle)
-                    .addSizes(Size(12))
-                    .setPosition(-50f, viewKonfetti.width + 50f, -50f, -50f)
-                    .streamFor(300, 2000L)
+        if (binding.viewKonfetti.getActiveSystems().size == 0) {
+            binding.viewKonfetti.build()
+                .addColors(Color.WHITE)
+                .setDirection(0.0, 359.0)
+                .setSpeed(1f, 5f)
+                .setFadeOutEnabled(true)
+                .setTimeToLive(2000L)
+                .addShapes(Shape.Square, Shape.Circle)
+                .addSizes(Size(12))
+                .setPosition(-50f, binding.viewKonfetti.width + 50f, -50f, -50f)
+                .streamFor(300, 2000L)
         }
     }
 
